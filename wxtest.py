@@ -44,13 +44,13 @@ def wechat_auth():
             
             content = content.strip().split('+')
             return_result = '貌似出错了......'
-            #try:
-            if True:
+            try:
+            #if True:
             	#wuru+产品名称
             	if content[0].strip() == 'wuru':
                     product_details = content[1].strip()
                     product_id = model.wuru(fromUser, product_details)
-                    return_result = u'您的物品('+product_details+u')的物品id是: ' + product_id + u',您可以随时点击"随便看看"查看'
+                    return_result = u'您的物品('+product_details+u')的物品ID是:[' + product_id + u'],您可以随时点击"随便看看"查看'
                     response = make_response(reply % (fromUser,toUser,str(int(time.time())),return_result))
                     response.headers['content_type']='application/xml'
                     return response
@@ -58,7 +58,7 @@ def wechat_auth():
                 if content[0].strip() == 'wuruid':
                     product_id = content[1].strip()
                     checkcode = model.wuruid(fromUser, product_id)
-                    return_result = u'该物品ID是' + product_id + u',验证码是: ' + checkcode + u',请您发给原使用者进行物出确认'
+                    return_result = u'该物品ID是[' + product_id + u'],验证码是: ' + checkcode + u',请您发给原使用者进行物出确认'
                     response = make_response( reply % (fromUser,toUser,str(int(time.time())),return_result))
                     response.headers['content_type']='application/xml'
                     return response
@@ -66,13 +66,13 @@ def wechat_auth():
                 if content[0] == 'wuchu':
                     product_id = content[1].strip()
                     checkcode = content[2].strip()
-                    model.wuchu(fromUser, product_id, checkcode)
-                    return_result = u'物品' + product_id + u'的使用权已经成功给出。'
+                    product_details = model.wuchu(fromUser, product_id, checkcode)
+                    return_result = u'您的物品('+product_details+u') 物品ID[' + product_id + u']的使用权已经成功给出。'
                     response = make_response( reply % (fromUser,toUser,str(int(time.time())),return_result))
                     response.headers['content_type']='application/xml'
                     return response
-            #except Exception as e:
-            #    print e
+            except Exception as e:
+                print e
             #    pass
                 
                 

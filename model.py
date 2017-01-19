@@ -27,48 +27,47 @@ def wuruid(username, product_id):
     #Old Product
     #Return checkcode for wuchu guy to confirm
     checkcode = gen_checkcode()
-    db.update('shareit', where = 'product_id = $pro_id', vars = dict(pro_id = product_id), checkcode_user = checkcode + ' ' + username )
+    db.update('shareit', where = 'product_id = $pro_id', vars = dict(pro_id = product_id), checkcode_user = checkcode + '_' + username )
     return checkcode
 
 def wuchu(username, product_id, checkcode):
     #Check checkcode, and if ok, update the product information
-    real_checkcode_username = db.select('shareit', what = 'checkcode_user', where = 'product_id = $pro_id', vars = dict(pro_id = product_id))
-    real_checkcode_username = str(list(real_checkcode_username)[0])
-    original_user = db.select('shareit', what = 'product_user', where = 'product_id = $pro_id', vars = dict(pro_id = product_id))
-    original_user = str(list(original_user)[0])
-    real_checkcode, wuru_username = str(real_checkcode_username).split(' ', 1)
+    results = db.select('shareit', what = 'product_user, checkcode_user, product_details', where = 'product_id = $pro_id', vars = dict(pro_id = product_id)).list()[0]
+    real_checkcode_username = results.checkcode_user
+    original_user = results.product_user
+   
+    #raise NameError(real_checkcode_username)
+    real_checkcode, wuru_username = str(real_checkcode_username).split('_', 1)
     
     if real_checkcode != checkcode or original_user != username:
         #Validation fail
-        raise
+        raise NameError(real_checkcode)
     else:
         db.update('shareit', where = 'product_id = $pro_id', vars = dict(pro_id = product_id), product_user = wuru_username, checkcode_user = 'NA_NA')
-        return 1
+        return results.product_details
         
     
 
 def suibiankankan(username):
     #Generate username related products. If none, return 5 random products
-    owner_products = db.select('shareit', what = ['product_id', 'product_details'], where = 'product_owner = $usrname', vars = dic(usrname = username))
-    user_products = db.select('shareit', what = ['product_id', 'product_details'], where = 'product_user = $usrname', vars = dic(usrname = username))
+    owner_products = db.select('shareit', what = 'product_id, product_details', where = 'product_owner = $usrname', vars = dic(usrname = username)).list()
+    user_products = db.select('shareit', what = 'product_id, product_details', where = 'product_user = $usrname', vars = dic(usrname = username)).list()
     strtmp = ''
     if len(owner_products) == 0 and len(user_products) == 0:
         #No user-related info, just randomly select 5 product details to show
         strtmp = '随机展示5个产品：'
-        random_products = db.select('shareit', what = 'product_details', limit = 5)
+        random_products = db.select('shareit', what = 'product_details', limit = 5).list()
         for product in random_products:
-            strtmp = strtmp + product + ';'
+            strtmp = strtmp + product.product_details + ';'
         return strtmp.strip(';')
     else:
         strtmp = '你有所有权的产品：'
         for product in owner_products:
-            strtmp = strtmp + '[' + product[0] + ']' + product[1] + ';'
+            strtmp = strtmp + '[' + product.product_id + ']' + product.product_details + ';'
         strtmp = strtmp.strip(';')
         strtmp = strtmp + ' || 你有使用权的产品：'
         for product in user_products:
-            strtmp = strtmp + '[' + product[0] + ']' + product[1] + ';'
+            strtmp = strtmp + '[' + product.product_id + ']' + product.product_details + ';'
         return strtmp.strip(';')
         
     
-
-
