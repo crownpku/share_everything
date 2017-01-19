@@ -50,24 +50,25 @@ def wuchu(username, product_id, checkcode):
 
 def suibiankankan(username):
     #Generate username related products. If none, return 5 random products
-    owner_products = db.select('shareit', what = 'product_id, product_details', where = 'product_owner = $usrname', vars = dic(usrname = username)).list()
-    user_products = db.select('shareit', what = 'product_id, product_details', where = 'product_user = $usrname', vars = dic(usrname = username)).list()
+    owner_products = db.select('shareit', what = 'product_id, product_details', where = 'product_owner = $usrname', vars = dict(usrname = username)).list()
+    user_products = db.select('shareit', what = 'product_id, product_details', where = 'product_user = $usrname', vars = dict(usrname = username)).list()
     strtmp = ''
     if len(owner_products) == 0 and len(user_products) == 0:
         #No user-related info, just randomly select 5 product details to show
-        strtmp = '随机展示5个产品：'
+        strtmp = u'随机展示5个产品：'
         random_products = db.select('shareit', what = 'product_details', limit = 5).list()
         for product in random_products:
-            strtmp = strtmp + product.product_details + ';'
+            strtmp = strtmp + product.product_details + u';'
         return strtmp.strip(';')
     else:
-        strtmp = '你有所有权的产品：'
+        strtmp = u'你有所有权的产品:'
         for product in owner_products:
-            strtmp = strtmp + '[' + product.product_id + ']' + product.product_details + ';'
+            strtmp = strtmp + u' [' + str(product.product_id) + u']' + product.product_details + u';'
         strtmp = strtmp.strip(';')
-        strtmp = strtmp + ' || 你有使用权的产品：'
+        strtmp = strtmp + u' \n你有使用权的产品:'
         for product in user_products:
-            strtmp = strtmp + '[' + product.product_id + ']' + product.product_details + ';'
+            strtmp = strtmp + u' [' + str(product.product_id) + u']' + product.product_details + u';'
         return strtmp.strip(';')
         
     
+

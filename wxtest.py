@@ -42,9 +42,15 @@ def wechat_auth():
             #根据msgType来处理信息（text,image...)
             #pass
             
-            content = content.strip().split('+')
+            
             return_result = '貌似出错了......'
             try:
+                if content == 'sbkk':
+                    return_result = model.suibiankankan(fromUser)
+                    response = make_response(reply % (fromUser,toUser,str(int(time.time())),return_result))
+                    response.headers['content_type']='application/xml'
+                    return response
+                content = content.strip().split('+')
             #if True:
             	#wuru+产品名称
             	if content[0].strip() == 'wuru':
