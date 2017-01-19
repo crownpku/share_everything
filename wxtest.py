@@ -30,23 +30,59 @@ def wechat_auth():
         ###这里就是处理用户发来的消息了
     	rec = request.stream.read()
     	xml_rec = ET.fromstring(rec)
-        content = xml_rec.find('Content').text
+        msgType = xml_rec.find('MsgType').text
+        
+        
     	toUser= xml_rec.find('ToUserName').text
     	fromUser = xml_rec.find('FromUserName').text
     	reply = "<xml><ToUserName><![CDATA[%s]]></ToUserName><FromUserName><![CDATA[%s]]></FromUserName><CreateTime>%s</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[%s]]></Content><FuncFlag>0</FuncFlag></xml>"
     	reply_news_temp_head = "<xml><ToUserName><![CDATA[%s]]></ToUserName><FromUserName><![CDATA[%s]]></FromUserName><CreateTime>%s</CreateTime><MsgType><![CDATA[news]]></MsgType><ArticleCount>%s</ArticleCount><Articles>"
     	reply_news_temp_body = "<item><Title><![CDATA[%s]]></Title><Description><![CDATA[%s]]></Description><PicUrl><![CDATA[%s]]></PicUrl><Url><![CDATA[%s]]></Url></item>"
     	reply_news_temp_foot = "</Articles></xml>"
-    	msgType = xml_rec.find('MsgType').text
-    	if msgType == 'text':   
+    	
+        
+        if msgType == 'event':
+            event = xml_rec.find('Event').text
+            return_result = '貌似出错了......'
+            if event == 'sbkk':
+                return_result = model.suibiankankan(fromUser)
+                response = make_response(reply % (fromUser,toUser,str(int(time.time())),return_result))
+                response.headers['content_type']='application/xml'
+                return response
+            elif event == 'wuru':
+                return_result = u"如果您是物品所有权人，第一次录入物品，请输入'wuru+物品名称'；\n如果您是借用人，请输入'wuru+物品ID'，物品ID请向原物主查询，成功后请将返回的验证码发给原物主确认。"
+                response = make_response(reply % (fromUser,toUser,str(int(time.time())),return_result))
+                response.headers['content_type']='application/xml'
+                return response 
+            elif event == 'wuchu':
+                return_result = u"请输入'wuchu+物品ID+验证码'确认，验证码请向新物主查询。"
+                response = make_response(reply % (fromUser,toUser,str(int(time.time())),return_result))
+                response.headers['content_type']='application/xml'
+                return response
+            elif event == 'zssm':
+                return_result = u"烦请阅读我的历史消息中的第三篇文章，谢谢！"
+                response = make_response(reply % (fromUser,toUser,str(int(time.time())),return_result))
+                response.headers['content_type']='application/xml'
+                return response
+    
+        if msgType == 'text':   
             #根据msgType来处理信息（text,image...)
             #pass
-            
-            
+            content = xml_rec.find('Content').text
             return_result = '貌似出错了......'
             try:
                 if content == 'sbkk':
                     return_result = model.suibiankankan(fromUser)
+                    response = make_response(reply % (fromUser,toUser,str(int(time.time())),return_result))
+                    response.headers['content_type']='application/xml'
+                    return response
+                elif content == 'wuru':
+                    return_result = u"如果您是物品所有权人，第一次录入物品，请输入'wuru+物品名称'；如果您是借用人，请输入'wuru+物品ID'，物品ID请向原物主查询。"
+                    response = make_response(reply % (fromUser,toUser,str(int(time.time())),return_result))
+                    response.headers['content_type']='application/xml'
+                    return response 
+                elif content == 'wuchu':
+                    return_result = u"请输入'wuchu+物品ID+验证码'确认，验证码请向新物主查询。"
                     response = make_response(reply % (fromUser,toUser,str(int(time.time())),return_result))
                     response.headers['content_type']='application/xml'
                     return response
