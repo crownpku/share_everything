@@ -1,6 +1,8 @@
 # share_everything
 wechat public account share_everything code
 
+![Wechat Menu](http://mmbiz.qpic.cn/mmbiz_jpg/WDOzwiccqCueSxXqxD6R4SQD2RSiaARXrK21ibMy0uoFjYiaMswBsKZdEJQG5Uia3JfrVRto2OHPM4hic20zicU4RhtyQ/640?wx_fmt=jpeg&tp=webp&wxfrom=5&wx_lazy=1)
+
 ## 使用说明
 
 ### 物出
